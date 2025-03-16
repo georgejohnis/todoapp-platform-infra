@@ -9,10 +9,30 @@ spec:
     repoURL: https://github.com/georgejohnis/todoapp-platform-infra.git
     targetRevision: main
     path: kubernetes/infrastructure
+    helm:
+      releaseName: ack-ecr-controller
+      values: |
+        serviceAccount:
+          create: true
+          name: ack-ecr-controller
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/ack-ecr-controller
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
   syncPolicy:
     automated:
       prune: true
-      selfHeal: true 
+      selfHeal: true
+  sources:
+    - repoURL: https://aws.github.io/eks-charts
+      chart: ack-ecr-controller
+      targetRevision: "1.1.0"
+      helm:
+        releaseName: ack-ecr-controller
+        values: |
+          serviceAccount:
+            create: true
+            name: ack-ecr-controller
+            annotations:
+              eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/ack-ecr-controller 
