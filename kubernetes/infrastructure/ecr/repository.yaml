@@ -1,8 +1,11 @@
-apiVersion: ecr.services.k8s.aws/v1
+apiVersion: ecr.services.k8s.aws/v1alpha1
 kind: Repository
 metadata:
   name: todo-app-repo
   namespace: kube-system
+  labels:
+    app: todo-app
+    managed-by: platform-team
 spec:
   repositoryName: todo-app
   imageTagMutability: MUTABLE
