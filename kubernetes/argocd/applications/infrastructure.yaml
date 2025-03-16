@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/georgejohnis/todoapp-platform-infra.git
     targetRevision: main
-    path: kubernetes/infrastructure
+    path: kubernetes/infrastructure/ecr
     helm:
       releaseName: ack-ecr-controller
       values: |
