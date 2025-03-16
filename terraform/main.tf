@@ -270,8 +270,40 @@ resource "aws_iam_role" "ack_ecr_controller" {
   })
 }
 
-# IAM Policy for ECR Full Access
+# IAM Policy for ECR Access
+resource "aws_iam_policy" "ack_ecr_controller_policy" {
+  name        = "ack-ecr-controller-policy"
+  path        = "/"
+  description = "Policy for ACK ECR Controller to manage ECR repositories"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:CreateRepository",
+          "ecr:DeleteRepository",
+          "ecr:DescribeRepositories",
+          "ecr:ListRepositories",
+          "ecr:PutLifecyclePolicy",
+          "ecr:GetLifecyclePolicy",
+          "ecr:DeleteLifecyclePolicy",
+          "ecr:BatchGetImage",
+          "ecr:BatchDeleteImage",
+          "ecr:CompleteLayerUpload",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Attach the custom ECR policy to the ACK ECR Controller role
 resource "aws_iam_role_policy_attachment" "ack_ecr_controller_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonECR_FullAccess"
+  policy_arn = aws_iam_policy.ack_ecr_controller_policy.arn
   role       = aws_iam_role.ack_ecr_controller.name
 }
