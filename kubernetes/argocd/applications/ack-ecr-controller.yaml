@@ -9,6 +9,13 @@ spec:
     repoURL: https://github.com/aws-controllers-k8s/ecr-controller.git
     targetRevision: main
     path: helm
+    helm:
+      values: |
+        aws:
+          region: us-west-2
+        serviceAccount:
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/ack-ecr-controller
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
