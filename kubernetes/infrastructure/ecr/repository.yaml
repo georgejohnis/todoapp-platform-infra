@@ -7,13 +7,21 @@ metadata:
     app: todo-app
     managed-by: platform-team
 spec:
+  name: todo-app
   repositoryName: todo-app
   imageTagMutability: MUTABLE
-  lifecyclePolicy:
-    rules:
-      - rulePriority: 1
-        selection:
-          tagStatus: TAGGED
-        action:
-          type: EXPIRY
-          expiry: 30
+  lifecyclePolicy: |
+    {
+      "rules": [
+        {
+          "rulePriority": 1,
+          "selection": {
+            "tagStatus": "TAGGED"
+          },
+          "action": {
+            "type": "EXPIRE",
+            "days": 30
+          }
+        }
+      ]
+    }
