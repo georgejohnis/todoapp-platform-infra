@@ -177,3 +177,101 @@ resource "kubernetes_manifest" "argocd_namespaces_app" {
     helm_release.argocd
   ]
 }
+
+# Create the ArgoCD Application for managing infrastructure components
+resource "kubernetes_manifest" "argocd_infrastructure_app" {
+  manifest = {
+    apiVersion = "argoproj.io/v1alpha1"
+    kind       = "Application"
+    metadata = {
+      name      = "platform-infrastructure"
+      namespace = "argocd"
+    }
+    spec = {
+      project = "default"
+      source = {
+        repoURL        = var.gitops_repo_url
+        targetRevision = "main"
+        path           = "kubernetes/infrastructure/ecr"
+      }
+      destination = {
+        server    = "https://kubernetes.default.svc"
+        namespace = "kube-system"
+      }
+      syncPolicy = {
+        automated = {
+          prune    = true
+          selfHeal = true
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    helm_release.argocd
+  ]
+}
+
+# Create the ArgoCD Application for managing the todo application
+resource "kubernetes_manifest" "argocd_todo_app" {
+  manifest = {
+    apiVersion = "argoproj.io/v1alpha1"
+    kind       = "Application"
+    metadata = {
+      name      = "todo-app"
+      namespace = "argocd"
+    }
+    spec = {
+      project = "default"
+      source = {
+        repoURL        = var.todo_app_repo_url  # This should be your todo-app repository URL
+        targetRevision = "main"
+        path           = "kubernetes/overlays/dev"
+      }
+      destination = {
+        server    = "https://kubernetes.default.svc"
+        namespace = "todo-app"
+      }
+      syncPolicy = {
+        automated = {
+          prune    = true
+          selfHeal = true
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    helm_release.argocd,
+    kubernetes_manifest.argocd_namespaces_app  # Ensure namespace exists first
+  ]
+}
+
+# IAM Role for ACK ECR Controller
+resource "aws_iam_role" "ack_ecr_controller" {
+  name = "ack-ecr-controller"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Effect = "Allow"
+        Principal = {
+          Federated = module.eks.oidc_provider_arn
+        }
+        Condition = {
+          StringEquals = {
+            "${module.eks.cluster_oidc_issuer_url}:sub": "system:serviceaccount:kube-system:ack-ecr-controller"
+          }
+        }
+      }
+    ]
+  })
+}
+
+# IAM Policy for ECR Full Access
+resource "aws_iam_role_policy_attachment" "ack_ecr_controller_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonECR_FullAccess"
+  role       = aws_iam_role.ack_ecr_controller.name
+}
