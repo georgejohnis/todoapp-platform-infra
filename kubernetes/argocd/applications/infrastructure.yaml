@@ -20,12 +20,14 @@ spec:
       destination:
         server: https://kubernetes.default.svc
         namespace: kube-system
+      syncWave: 0
     - repoURL: https://github.com/georgejohnis/todoapp-platform-infra.git
       targetRevision: main
       path: kubernetes/infrastructure/ecr
       destination:
         server: https://kubernetes.default.svc
         namespace: kube-system
+      syncWave: 1
   syncPolicy:
     automated:
       prune: true
