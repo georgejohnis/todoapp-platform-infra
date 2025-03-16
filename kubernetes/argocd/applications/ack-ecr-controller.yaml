@@ -6,17 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://aws-controllers-k8s.github.io/charts
-    targetRevision: "0.1.0"
-    chart: ack-ecr-controller
-    helm:
-      releaseName: ack-ecr-controller
-      values: |
-        serviceAccount:
-          create: true
-          name: ack-ecr-controller
-          annotations:
-            eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/ack-ecr-controller
+    repoURL: https://github.com/aws-controllers-k8s/ecr-controller.git
+    targetRevision: main
+    path: helm
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
