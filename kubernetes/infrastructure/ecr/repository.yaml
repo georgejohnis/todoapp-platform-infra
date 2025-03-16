@@ -13,4 +13,4 @@ spec:
           tagStatus: TAGGED
         action:
           type: EXPIRY
-          expiry: 30 
+          expiry: 30
