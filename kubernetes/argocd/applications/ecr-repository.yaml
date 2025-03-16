@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ecr-repository
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/georgejohnis/todoapp-platform-infra.git
+    targetRevision: main
+    path: kubernetes/infrastructure/ecr
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  wait:
+    - group: apps
+      kind: Deployment
+      name: ack-ecr-controller
+      namespace: kube-system
+      condition: Available 

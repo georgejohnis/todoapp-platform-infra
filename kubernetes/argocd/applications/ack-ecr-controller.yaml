@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ack-ecr-controller
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://aws.github.io/eks-charts
+    targetRevision: "1.1.0"
+    chart: ack-ecr-controller
+    helm:
+      releaseName: ack-ecr-controller
+      values: |
+        serviceAccount:
+          create: true
+          name: ack-ecr-controller
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/ack-ecr-controller
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
