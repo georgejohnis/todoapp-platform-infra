@@ -156,8 +156,8 @@ resource "kubernetes_manifest" "argocd_namespaces_app" {
     spec = {
       project = "default"
       source = {
-        repoURL        = var.gitops_repo_url  # We'll add this variable
-        targetRevision = "HEAD"
+        repoURL        = var.gitops_repo_url
+        targetRevision = "main"
         path           = "kubernetes/namespaces"
       }
       destination = {
@@ -174,7 +174,6 @@ resource "kubernetes_manifest" "argocd_namespaces_app" {
   }
 
   depends_on = [
-    helm_release.argocd,
-    module.eks
+    helm_release.argocd
   ]
 }

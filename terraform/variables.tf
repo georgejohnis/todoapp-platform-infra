@@ -31,4 +31,5 @@ variable "subnet_ids" {
 variable "gitops_repo_url" {
   description = "The URL of the Git repository containing the GitOps configurations"
   type        = string
+  default     = "https://github.com/georgejohnis/todoapp-platform-infra.git"
 }
