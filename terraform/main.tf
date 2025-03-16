@@ -144,109 +144,6 @@ resource "helm_release" "argocd" {
   }
 }
 
-# Create the ArgoCD Application for managing namespaces
-resource "kubernetes_manifest" "argocd_namespaces_app" {
-  manifest = {
-    apiVersion = "argoproj.io/v1alpha1"
-    kind       = "Application"
-    metadata = {
-      name      = "platform-namespaces"
-      namespace = "argocd"
-    }
-    spec = {
-      project = "default"
-      source = {
-        repoURL        = var.gitops_repo_url
-        targetRevision = "main"
-        path           = "kubernetes/namespaces"
-      }
-      destination = {
-        server    = "https://kubernetes.default.svc"
-        namespace = "default"
-      }
-      syncPolicy = {
-        automated = {
-          prune    = true
-          selfHeal = true
-        }
-      }
-    }
-  }
-
-  depends_on = [
-    helm_release.argocd
-  ]
-}
-
-# Create the ArgoCD Application for managing infrastructure components
-resource "kubernetes_manifest" "argocd_infrastructure_app" {
-  manifest = {
-    apiVersion = "argoproj.io/v1alpha1"
-    kind       = "Application"
-    metadata = {
-      name      = "platform-infrastructure"
-      namespace = "argocd"
-    }
-    spec = {
-      project = "default"
-      source = {
-        repoURL        = var.gitops_repo_url
-        targetRevision = "main"
-        path           = "kubernetes/infrastructure/ecr"
-      }
-      destination = {
-        server    = "https://kubernetes.default.svc"
-        namespace = "kube-system"
-      }
-      syncPolicy = {
-        automated = {
-          prune    = true
-          selfHeal = true
-        }
-      }
-    }
-  }
-
-  depends_on = [
-    helm_release.argocd
-  ]
-}
-
-# Create the ArgoCD Application for managing the todo application
-resource "kubernetes_manifest" "argocd_todo_app" {
-  manifest = {
-    apiVersion = "argoproj.io/v1alpha1"
-    kind       = "Application"
-    metadata = {
-      name      = "todo-app"
-      namespace = "argocd"
-    }
-    spec = {
-      project = "default"
-      source = {
-        repoURL        = var.todo_app_repo_url  # This should be your todo-app repository URL
-        targetRevision = "main"
-        path           = "kubernetes/overlays/dev"
-      }
-      destination = {
-        server    = "https://kubernetes.default.svc"
-        namespace = "todo-app"
-      }
-      syncPolicy = {
-        automated = {
-          prune    = true
-          selfHeal = true
-        }
-      }
-    }
-  }
-
-  depends_on = [
-    helm_release.argocd,
-    kubernetes_manifest.argocd_namespaces_app  # Ensure namespace exists first
-  ]
-}
-
 # IAM Role for ACK ECR Controller
 resource "aws_iam_role" "ack_ecr_controller" {
   name = "ack-ecr-controller"
@@ -262,7 +159,8 @@ resource "aws_iam_role" "ack_ecr_controller" {
         }
         Condition = {
           StringEquals = {
-            "${module.eks.cluster_oidc_issuer_url}:sub": "system:serviceaccount:kube-system:ack-ecr-controller"
+            "${module.eks.cluster_oidc_issuer_url}:sub": "system:serviceaccount:kube-system:ack-ecr-controller",
+            "${module.eks.cluster_oidc_issuer_url}:aud": "sts.amazonaws.com"
           }
         }
       }
