@@ -17,18 +17,16 @@ spec:
             name: ack-ecr-controller
             annotations:
               eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/ack-ecr-controller
-      destination:
-        server: https://kubernetes.default.svc
-        namespace: kube-system
-      syncWave: 0
     - repoURL: https://github.com/georgejohnis/todoapp-platform-infra.git
       targetRevision: main
       path: kubernetes/infrastructure/ecr
-      destination:
-        server: https://kubernetes.default.svc
-        namespace: kube-system
-      syncWave: 1
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
   syncPolicy:
     automated:
       prune: true
-      selfHeal: true 
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    syncWave: 0 
