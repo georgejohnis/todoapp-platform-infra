@@ -5,29 +5,10 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: https://github.com/georgejohnis/todoapp-platform-infra.git
-    targetRevision: main
-    path: kubernetes/infrastructure/ecr
-    helm:
-      releaseName: ack-ecr-controller
-      values: |
-        serviceAccount:
-          create: true
-          name: ack-ecr-controller
-          annotations:
-            eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/ack-ecr-controller
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: kube-system
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
   sources:
     - repoURL: https://aws.github.io/eks-charts
-      chart: ack-ecr-controller
       targetRevision: "1.1.0"
+      chart: ack-ecr-controller
       helm:
         releaseName: ack-ecr-controller
         values: |
@@ -35,4 +16,17 @@ spec:
             create: true
             name: ack-ecr-controller
             annotations:
-              eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/ack-ecr-controller 
+              eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/ack-ecr-controller
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: kube-system
+    - repoURL: https://github.com/georgejohnis/todoapp-platform-infra.git
+      targetRevision: main
+      path: kubernetes/infrastructure/ecr
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true 
