@@ -16,9 +16,6 @@ spec:
     automated:
       prune: true
       selfHeal: true
-  wait:
-    - group: apps
-      kind: Deployment
-      name: ack-ecr-controller
-      namespace: kube-system
-      condition: Available 
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true 
